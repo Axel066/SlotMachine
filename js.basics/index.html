@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Machine</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    #slot-machine {
+      text-align: center;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+    }
+
+    .slot {
+      width: 60px;
+      height: 60px;
+      margin: 5px;
+      background-color: #3498db;
+      border: 2px solid #2980b9;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      font-size: 24px;
+      line-height: 60px;
+      color: #ecf0f1;
+      font-weight: bold;
+      text-align: center;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #27ae60;
+      color: #ecf0f1;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #219c4e;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    #balance-box {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #3498db;
+    }
+  </style>
+</head>
+<body>
+
+<div id="slot-machine">
+  <div class="row" id="row1"></div>
+  <div class="row" id="row2"></div>
+  <div class="row" id="row3"></div>
+  <button onclick="spin()">Spin</button>
+  <p id="result"></p>
+  <p id="balance-box">Balance: $<span id="balance">5000</span></p>
+</div>
+
+<script>
+  let balance = 5000;
+  const symbols = ['🍒', '🍋', '🍇', '🍊', '🍉'];
+  const slots = [
+    document.getElementById('row1'),
+    document.getElementById('row2'),
+    document.getElementById('row3')
+  ];
+  const resultDisplay = document.getElementById('result');
+  const balanceDisplay = document.getElementById('balance');
+
+  function getRandomSymbol() {
+    const randomIndex = Math.floor(Math.random() * symbols.length);
+    return symbols[randomIndex];
+  }
+
+  function spin() {
+    for (let i = 0; i < slots.length; i++) {
+      slots[i].innerHTML = '';
+      for (let j = 0; j < 3; j++) {
+        const symbol = getRandomSymbol();
+        const slotElement = document.createElement('div');
+        slotElement.className = 'slot';
+        slotElement.innerText = symbol;
+        slots[i].appendChild(slotElement);
+      }
+    }
+
+    checkResult();
+  }
+
+  function checkResult() {
+    // Check horizontal lines
+    for (let i = 0; i < slots.length; i++) {
+      const symbolsSet = new Set([
+        slots[i].children[0].innerText,
+        slots[i].children[1].innerText,
+        slots[i].children[2].innerText
+      ]);
+
+      if (symbolsSet.size === 1) {
+        handleWin(symbolsSet.values().next().value);
+        return;
+      }
+    }
+
+    // Check vertical lines
+    for (let j = 0; j < 3; j++) {
+      const symbolsSet = new Set([
+        slots[0].children[j].innerText,
+        slots[1].children[j].innerText,
+        slots[2].children[j].innerText
+      ]);
+
+      if (symbolsSet.size === 1) {
+        handleWin(symbolsSet.values().next().value);
+        return;
+      }
+    }
+
+    // Check diagonals
+    const diagonal1Set = new Set([
+      slots[0].children[0].innerText,
+      slots[1].children[1].innerText,
+      slots[2].children[2].innerText
+    ]);
+
+    const diagonal2Set = new Set([
+      slots[0].children[2].innerText,
+      slots[1].children[1].innerText,
+      slots[2].children[0].innerText
+    ]);
+
+    if (diagonal1Set.size === 1) {
+      handleWin(diagonal1Set.values().next().value);
+      return;
+    }
+
+    if (diagonal2Set.size === 1) {
+      handleWin(diagonal2Set.values().next().value);
+      return;
+    }
+
+    // If no win on horizontal, vertical, or diagonal lines
+    resultDisplay.innerText = 'Sorry, try again!';
+  }
+
+  function handleWin(symbol) {
+    switch (symbol) {
+      case '🍒':
+        balance += 2 * 100; // x2 times the money
+        break;
+      case '🍋':
+        balance += 5 * 100; // x5 times the money
+        break;
+      // Add more cases for other symbols
+    }
+
+    resultDisplay.innerText = `Congratulations! You won $${symbol === '🍒' ? 2 * 100 : 5 * 100}!`;
+    updateBalance();
+  }
+
+  function updateBalance() {
+    balanceDisplay.innerText = balance;
+  }
+</script>
+
+</body>
+</html>
